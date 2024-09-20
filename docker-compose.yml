@@ -1,0 +1,19 @@
+version: '3.1'
+
+services:
+
+  postgres:
+    image: postgres
+    container_name: donationappdb
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: donationapp_rest
+    volumes:
+      - ./postgres:/var/lib/postgresql/data/
+    ports:
+      - 5432:5432
+
+volumes:
+  postgres_data:
+    driver: local

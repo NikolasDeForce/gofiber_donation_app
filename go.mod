@@ -37,6 +37,7 @@ require (
 	github.com/gofiber/jwt/v2 v2.2.7
 	github.com/gofiber/template/html/v2 v2.1.2
 	github.com/golang-jwt/jwt v3.2.2+incompatible
+	github.com/gorilla/mux v1.8.1
 	github.com/jackc/pgx/v4 v4.18.3
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/leodido/go-urn v1.4.0 // indirect

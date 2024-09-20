@@ -3,6 +3,8 @@ package queries
 import (
 	"donation_app/app/models"
 	"donation_app/platform/db"
+	"log"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -12,17 +14,34 @@ type DonatesQueries struct {
 	*sqlx.DB
 }
 
-func (q *DonatesQueries) GetAllDonates() ([]models.Donate, error) {
-	donates := []models.Donate{}
-
-	query := `SELECT * FROM donates`
-
-	err := q.Get(&donates, query)
+// ListAllMessages if for returning all messages from the database table
+func ListAllDonates(loginStrimer string) ([]models.Donate, error) {
+	db, err := db.ConnectPostgres()
 	if err != nil {
-		return donates, err
+		log.Println("Cannot connect to PostreSQL!")
+		db.Close()
+		return []models.Donate{}
+	}
+	defer db.Close()
+
+	rows, err := db.Query("SELECT * FROM donates WHERE Logintodonate = $1 \n", loginStrimer)
+	if err != nil {
+		log.Println(err)
+		return []models.Donate{}
 	}
 
-	return donates, nil
+	all := []models.Donate{}
+	var c1, c6 int
+	var c2 time.Time
+	var c4, c3, c5 string
+
+	for rows.Next() {
+		err = rows.Scan(&c1, &c2, &c3, &c4, &c5, &c6)
+		temp := models.Donate{c1, c2, c3, c4, c5, c6}
+		all = append(all, temp)
+	}
+
+	return all
 }
 
 func (q *DonatesQueries) GetDonateByID(id uuid.UUID) (models.Donate, error) {

@@ -10,7 +10,7 @@ import (
 func PrivateRoutes(a *fiber.App) {
 	route := a.Group("/api/v1")
 
-	route.Get("/users", middleware.JWTProtected(), controllers.GetAllUsersHandler)
+	//route.Get("/users", middleware.JWTProtected(), controllers.GetAllUsersHandler)
 
-	// route.Get("/user/:email", middleware.JWTProtected(), controllers.GetUserByEmailHandler)
+	route.Get("/donates/:login", middleware.JWTProtected(), controllers.ListAllDonatesHandler)
 }

@@ -13,7 +13,7 @@ type TokenMetadata struct {
 }
 
 func ExtractTokenMetadata(c *fiber.Ctx) (*TokenMetadata, error) {
-	token, err := verifyToken(c)
+	token, err := VerifyToken(c)
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +41,7 @@ func extractToken(c *fiber.Ctx) string {
 	return ""
 }
 
-func verifyToken(c *fiber.Ctx) (*jwt.Token, error) {
+func VerifyToken(c *fiber.Ctx) (*jwt.Token, error) {
 	tokenString := extractToken(c)
 
 	token, err := jwt.Parse(tokenString, jwtKeyFunc)

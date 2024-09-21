@@ -3,12 +3,30 @@ package controllers
 import (
 	"donation_app/app/models"
 	"donation_app/app/queries"
+	"donation_app/app/utils"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 func GetAllUsersHandler(c *fiber.Ctx) error {
+	var adminToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzYyNTc5NTJ9.aAkHcoBExc3UXnrrdlkNgIDK5TRDzewZOLbc2aCdJhM"
+
+	token, err := utils.VerifyToken(c)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	if token.Raw != adminToken {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   "given token not admin-token",
+		})
+	}
+
 	users, err := queries.GetAllUsers()
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
@@ -42,9 +60,18 @@ func CreateUserHandler(c *fiber.Ctx) error {
 		})
 	}
 
+	token, err := utils.GenerateNewAccessToken()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
 	return c.JSON(fiber.Map{
-		"error": false,
-		"msg":   nil,
-		"user":  user,
+		"error":        false,
+		"msg":          nil,
+		"user":         user,
+		"access_token": token,
 	})
 }

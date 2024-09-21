@@ -5,29 +5,21 @@ import (
 	"donation_app/platform/db"
 	"log"
 	"time"
-
-	"github.com/google/uuid"
-	"github.com/jmoiron/sqlx"
 )
 
-type DonatesQueries struct {
-	*sqlx.DB
-}
-
-// ListAllMessages if for returning all messages from the database table
 func ListAllDonates(loginStrimer string) ([]models.Donate, error) {
 	db, err := db.ConnectPostgres()
 	if err != nil {
 		log.Println("Cannot connect to PostreSQL!")
 		db.Close()
-		return []models.Donate{}
+		return []models.Donate{}, err
 	}
 	defer db.Close()
 
 	rows, err := db.Query("SELECT * FROM donates WHERE Logintodonate = $1 \n", loginStrimer)
 	if err != nil {
 		log.Println(err)
-		return []models.Donate{}
+		return []models.Donate{}, err
 	}
 
 	all := []models.Donate{}
@@ -41,20 +33,34 @@ func ListAllDonates(loginStrimer string) ([]models.Donate, error) {
 		all = append(all, temp)
 	}
 
-	return all
+	return all, nil
 }
 
-func (q *DonatesQueries) GetDonateByID(id uuid.UUID) (models.Donate, error) {
-	donate := models.Donate{}
-
-	query := `SELECT * FROM donates WHERE id = $1`
-
-	err := q.Get(&donate, query, id)
+func GetAllDonates() ([]models.Donate, error) {
+	db, err := db.ConnectPostgres()
 	if err != nil {
-		return donate, err
+		db.Close()
+		return []models.Donate{}, err
+	}
+	defer db.Close()
+
+	rows, err := db.Query("SELECT * FROM donates \n")
+	if err != nil {
+		return []models.Donate{}, err
+	}
+	donates := []models.Donate{}
+
+	var c1, c6 int
+	var c2 time.Time
+	var c3, c4, c5 string
+
+	for rows.Next() {
+		err = rows.Scan(&c1, &c2, &c3, &c4, &c5, &c6)
+		temp := models.Donate{c1, c2, c3, c4, c5, c6}
+		donates = append(donates, temp)
 	}
 
-	return donate, nil
+	return donates, nil
 }
 
 func InsertDonate(d models.Donate) error {
@@ -72,4 +78,67 @@ func InsertDonate(d models.Donate) error {
 
 	stmt.Exec(d.CreatedAt, d.LoginWhoDonate, d.LoginToDonate, d.Message, d.Summary)
 	return nil
+}
+
+func DeleteDonate(ID int) error {
+	db, err := db.ConnectPostgres()
+	if err != nil {
+		log.Println("Cannot connect to PostreSQL!")
+		db.Close()
+		return err
+	}
+	defer db.Close()
+
+	//check is the user ID exist
+	t := FindDonateID(ID)
+	if t.ID == 0 {
+		log.Println("User", ID, "does not exist")
+		return err
+	}
+
+	stmt, err := db.Prepare("DELETE FROM donates WHERE ID = $1")
+	if err != nil {
+		log.Println("DeleteUser:", err)
+		return err
+	}
+
+	_, err = stmt.Exec(ID)
+	if err != nil {
+		log.Println("DeleteUser:", err)
+		return err
+	}
+
+	return nil
+}
+
+func FindDonateID(ID int) models.Donate {
+	db, err := db.ConnectPostgres()
+	if err != nil {
+		log.Println("Cannot connect to PostreSQL!")
+		db.Close()
+		return models.Donate{}
+	}
+	defer db.Close()
+
+	rows, err := db.Query("SELECT * FROM donates WHERE ID = $1\n", ID)
+	if err != nil {
+		log.Println("Query:", err)
+		return models.Donate{}
+	}
+	defer rows.Close()
+
+	d := models.Donate{}
+	var c1, c6 int
+	var c2 time.Time
+	var c3, c4, c5 string
+
+	for rows.Next() {
+		err := rows.Scan(&c1, &c2, &c3, &c4, &c5, &c6)
+		if err != nil {
+			log.Println(err)
+			return models.Donate{}
+		}
+		d = models.Donate{c1, c2, c3, c4, c5, c6}
+	}
+	return d
 }

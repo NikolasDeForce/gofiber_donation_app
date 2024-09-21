@@ -23,6 +23,8 @@ CREATE TABLE donates (
     message VARCHAR (255) NOT NULL,
     summary INT NOT NULL
 );
+-- Create admin user
+INSERT INTO users(created_at, login, email, password) VALUES ('2024-01-01 00:00:00', 'admin', 'admin@mail.ru', 'admin');
 
 -- Add indexes
-CREATE INDEX active_users ON users (email) WHERE user_status = 1;
+CREATE INDEX notadmin_users ON users (email) WHERE login != 'admin' AND password != 'admin';

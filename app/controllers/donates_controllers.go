@@ -89,9 +89,9 @@ func ListAllDonatesHandler(c *fiber.Ctx) error {
 }
 
 func GetAllDonatesHandler(c *fiber.Ctx) error {
-	now := time.Now().Unix()
+	var adminToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzYyNTc5NTJ9.aAkHcoBExc3UXnrrdlkNgIDK5TRDzewZOLbc2aCdJhM"
 
-	claims, err := utils.ExtractTokenMetadata(c)
+	token, err := utils.VerifyToken(c)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": true,
@@ -99,12 +99,10 @@ func GetAllDonatesHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	expires := claims.Expires
-
-	if now > expires {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+	if token.Raw != adminToken {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": true,
-			"msg":   "unauthorized, check expiration time of your token",
+			"msg":   "given token not admin-token",
 		})
 	}
 

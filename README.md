@@ -24,3 +24,9 @@ GET запрос на получение нового JWT-Токена для а
 
 GET запрос на получение списка донатов по логину, с использованием JWT-Токена в Header /api/v1/donates/:login(например Vasily)
 ![Alt text](prew/donatesvalue.png?raw=true "Donates")
+
+Пример GET запроса на получение списка донатов по логину, без использования JWT-Токена в Header 
+![Alt text](prew/withouttoken.png?raw=true "WithoutToken")
+
+Пример GET запроса на получение списка донатов по логину, c использованием JWT-Токена в Header, но неверного, либо просроченного(срок годности 24 часа) 
+![Alt text](prew/notvalidtoken.png?raw=true "NotValidToken")

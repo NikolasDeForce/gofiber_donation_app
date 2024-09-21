@@ -92,7 +92,6 @@ func DeleteDonate(ID int) error {
 	//check is the user ID exist
 	t := FindDonateID(ID)
 	if t.ID == 0 {
-		log.Println("User", ID, "does not exist")
 		return err
 	}
 

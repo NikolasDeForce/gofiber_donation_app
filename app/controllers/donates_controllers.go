@@ -19,6 +19,21 @@ func CreateDonateHandler(c *fiber.Ctx) error {
 	donate.Message = c.FormValue("message")
 	donate.Summary, _ = strconv.Atoi(c.FormValue("summary"))
 
+	login, err := queries.FindUserLogin(donate.LoginToDonate)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   "user not found in db",
+		})
+	}
+
+	if login.Login != donate.LoginToDonate {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   "user is doesn't match to login",
+		})
+	}
+
 	if err := queries.InsertDonate(donate); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": true,
@@ -58,18 +73,104 @@ func ListAllDonatesHandler(c *fiber.Ctx) error {
 	donates, err := queries.ListAllDonates(login)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": true,
-			"msg":   "books were not found",
-			"count": 0,
-			"books": nil,
+			"error":   true,
+			"msg":     "donates were not found",
+			"count":   0,
+			"donates": nil,
 		})
 	}
 
-	// Return status 200 OK.
 	return c.JSON(fiber.Map{
 		"error":   false,
 		"msg":     nil,
 		"count":   len(donates),
 		"donates": donates,
+	})
+}
+
+func GetAllDonatesHandler(c *fiber.Ctx) error {
+	now := time.Now().Unix()
+
+	claims, err := utils.ExtractTokenMetadata(c)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	expires := claims.Expires
+
+	if now > expires {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": true,
+			"msg":   "unauthorized, check expiration time of your token",
+		})
+	}
+
+	donates, err := queries.GetAllDonates()
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error":   true,
+			"msg":     "donates were not found",
+			"count":   0,
+			"donates": nil,
+		})
+	}
+
+	return c.JSON(fiber.Map{
+		"error":   false,
+		"msg":     nil,
+		"count":   len(donates),
+		"donates": donates,
+	})
+}
+
+func DeleteDonateHandler(c *fiber.Ctx) error {
+	now := time.Now().Unix()
+
+	claims, err := utils.ExtractTokenMetadata(c)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	expires := claims.Expires
+
+	if now > expires {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": true,
+			"msg":   "unauthorized, check expiration time of your token",
+		})
+	}
+
+	id, _ := strconv.Atoi(c.Params("id"))
+
+	ok := queries.DeleteDonate(id)
+	if ok != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error":   true,
+			"msg":     "donates were not found",
+			"count":   0,
+			"donates": nil,
+		})
+	}
+	donates, err := queries.GetAllDonates()
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error":   true,
+			"msg":     "donates were not found",
+			"count":   0,
+			"donates": nil,
+		})
+	}
+
+	return c.JSON(fiber.Map{
+		"error":  false,
+		"msg":    nil,
+		"count":  len(donates),
+		"donate": donates,
 	})
 }

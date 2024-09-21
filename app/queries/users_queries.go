@@ -113,3 +113,38 @@ func IsUserValid(u models.User) bool {
 
 	return false
 }
+
+func FindUserLogin(login string) (models.User, error) {
+	db, err := db.ConnectPostgres()
+	if err != nil {
+		log.Println("Cannot connect to PostreSQL!")
+		db.Close()
+		return models.User{}, err
+	}
+	defer db.Close()
+
+	rows, err := db.Query("SELECT * FROM users WHERE Login = $1 \n", login)
+	if err != nil {
+		log.Println("Query:", err)
+		return models.User{}, err
+	}
+	defer rows.Close()
+
+	u := models.User{}
+
+	var c1 int
+	var c2 time.Time
+	var c3, c4, c5 string
+
+	for rows.Next() {
+		err := rows.Scan(&c1, &c2, &c3, &c4, &c5)
+		if err != nil {
+			log.Println(err)
+			return models.User{}, err
+		}
+
+		u = models.User{c1, c2, c3, c4, c5}
+	}
+
+	return u, nil
+}

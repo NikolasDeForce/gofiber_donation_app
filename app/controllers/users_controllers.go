@@ -23,7 +23,7 @@ func GetAllUsersHandler(c *fiber.Ctx) error {
 		"error": false,
 		"msg":   nil,
 		"count": len(users),
-		"books": users,
+		"users": users,
 	})
 }
 

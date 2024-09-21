@@ -11,5 +11,4 @@ func PublicRoutes(a *fiber.App) {
 
 	route.Post("/register", controllers.CreateUserHandler)
 	route.Post("/donate", controllers.CreateDonateHandler)
-	route.Get("/token/new", controllers.GetNewAccesToken)
 }

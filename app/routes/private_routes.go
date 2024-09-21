@@ -10,11 +10,5 @@ import (
 func PrivateRoutes(a *fiber.App) {
 	route := a.Group("/api/v1")
 
-	route.Get("/admin/users", middleware.JWTProtected(), controllers.GetAllUsersHandler)
-
-	route.Get("/admin/donates", middleware.JWTProtected(), controllers.GetAllDonatesHandler)
-
-	route.Delete("/admin/delete/donate/:id", middleware.JWTProtected(), controllers.DeleteDonateHandler)
-
 	route.Get("/donates/:login", middleware.JWTProtected(), controllers.ListAllDonatesHandler)
 }

@@ -12,9 +12,6 @@ POST запрос на отправку доната, с указанием по
 ![Alt text](prew/donatenotvalidlogin.png?raw=true "DonateNotValid")
 # Третий сервис реализует обработку запросов от стримеров через API.
 
-GET запрос на получение нового JWT-Токена для авторизации /api/v1/token/new
-![Alt text](prew/new:token.png?raw=true "NewToken")
-
 GET запрос на получение списка донатов по логину, с использованием JWT-Токена в Header /api/v1/donates/:login(например Vasily)
 ![Alt text](prew/donatesvalue.png?raw=true "Donates")
 

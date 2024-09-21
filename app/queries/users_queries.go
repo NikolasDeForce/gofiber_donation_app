@@ -34,32 +34,6 @@ func GetAllUsers() ([]models.User, error) {
 	return users, nil
 }
 
-// func GetUserByID(id uuid.UUID) (models.User, error) {
-// 	user := models.User{}
-
-// 	query := `SELECT * FROM users WHERE id = $1`
-
-// 	err := q.Get(&user, query, id)
-// 	if err != nil {
-// 		return user, err
-// 	}
-
-// 	return user, nil
-// }
-
-// func GetUserByEmail(email string) (models.User, error) {
-// 	user := models.User{}
-
-// 	query := `SELECT * FROM users WHERE email = $1`
-
-// 	err := q.Get(&user, query, email)
-// 	if err != nil {
-// 		return user, err
-// 	}
-
-// 	return user, nil
-// }
-
 func InsertUser(u models.User) error {
 	db, err := db.ConnectPostgres()
 	if err != nil {
